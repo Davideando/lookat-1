@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<robot name="myrobot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="base_rad" value=".8" />
+  <xacro:property name="base_y" value="1.6" />
+  <xacro:property name="base_z" value="1.1" />
+  <xacro:property name="pan_x" value="0" />
+  <xacro:property name="pan_y" value="0" />
+  <xacro:property name="pan_z" value="0" />
+  <xacro:property name="tilt_x" value="0" />
+  <xacro:property name="tilt_y" value="0" />
+  <xacro:property name="tilt_z" value="0" />
+  <xacro:property name="base_inertia">
+    <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001" />
+  </xacro:property>
+
+
+  <material name="blue">
+    <color rgba="0 0 .8 1"/>
+  </material>
+
+  <material name="red">
+    <color rgba=".8 0 0 1"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 .8 0 1"/>
+  </material>
+
+ <xacro:macro name="default_inertial" params="mass">
+    <inertial>
+      <mass value="${mass}" />
+      <origin xyz="0 0 0"/>
+      <xacro:insert_block name="base_inertia"/>
+    </inertial>
+ </xacro:macro>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 .9" rpy="0 0 0" />
+      <geometry>        
+        <mesh filename="package://lookat_description/urdf/meshes/base_link.stl" scale="0.01 0.01 0.01" />
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${base_z/2}" rpy="0 0 0" />
+      <geometry>
+      	<cylinder radius="${base_rad}" length="${base_z}"/>              
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="10"/>    
+  </link>
+
+  <joint name="joint_pan" type="revolute">
+    <parent link="base_link"/>
+    <child link="pan_link"/>
+    <origin xyz="0 0 .5" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="0.5" />
+    <dynamics damping="0.7"/>
+  </joint>
+
+  <link name="pan_link">
+    <visual>      
+      <origin xyz="0 0 .4" rpy="0 0 0" />
+      <geometry>        
+        <mesh filename="package://lookat_description/urdf/meshes/pan_link.stl" scale="0.01 0.01 0.01" />
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${pan_y/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${pan_x} ${pan_y} ${pan_z}"/>        
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="10"/>    
+  </link>
+
+  <joint name="joint_tilt" type="revolute">
+    <parent link="pan_link"/>
+    <child link="tilt_link"/>
+    <origin xyz="0 0 0.43" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="0.5" />
+    <dynamics damping="0.7"/>
+  </joint>
+
+  <link name="tilt_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://lookat_description/urdf/meshes/tilt_link.stl" scale="0.01 0.01 0.01" />
+      </geometry>
+      <material name="green"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${tilt_y/2}" rpy="0 0 0" />
+      <geometry>
+        <box size="${tilt_x} ${tilt_y} ${tilt_z}"/>        
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="10"/>    
+  </link>
+
+
+<!-- 
+
+   <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo> -->
+
+</robot>
